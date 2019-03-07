@@ -1,0 +1,25 @@
+{
+  "name": "tslint-type-role",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "tslint -p .",
+    "test": "mocha --require ts-node/register spec/**/*.ts"
+  },
+  "author": "Yaniv Trabelsi <yantrab@gmail.com>",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/jasmine": "^3.3.9",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^11.10.4",
+    "jasmine": "^3.3.1",
+    "jasmine-ts": "^0.3.0",
+    "mocha": "^6.0.2",
+    "ts-node": "^8.0.2",
+    "tslint": "^5.13.1",
+    "typescript": "^3.3.3333"
+  }
+}
