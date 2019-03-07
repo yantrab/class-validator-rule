@@ -5,9 +5,18 @@ export function compile(sourceFile: ts.SourceFile) {
   function compileNode(node: ts.Node) {
     if (node.kind === ts.SyntaxKind.PropertyDeclaration) {
       console.log(node);
-      new NoPropertysWalker(sourceFile,
-        { ruleArguments: [], disabledIntervals: [], ruleName: "", ruleSeverity: "off" })
-        .visitPropertyDeclaration(node as ts.PropertyDeclaration);
+    }
+    if (node.kind === ts.SyntaxKind.StringLiteral) {
+      console.log(node);
+
+    }
+    if (node.kind === ts.SyntaxKind.TypeLiteral) {
+      console.log(node);
+
+    }
+    if (node.kind === ts.SyntaxKind.TypeParameter) {
+      console.log(node);
+
     }
 
     ts.forEachChild(node, compileNode);

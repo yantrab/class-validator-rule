@@ -15,6 +15,7 @@
     "@types/jasmine": "^3.3.9",
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.10.4",
+    "class-validator": "^0.9.1",
     "jasmine": "^3.3.1",
     "jasmine-ts": "^0.3.0",
     "mocha": "^6.0.2",
