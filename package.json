@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "tslint -p .",
-    "lint:fix": "tslint -p . --fix -t verbose",
+    "lint:fix": "tslint -p . --fix ",
     "test": "mocha --require ts-node/register spec/**/*.ts"
   },
   "author": "Yaniv Trabelsi <yantrab@gmail.com>",
