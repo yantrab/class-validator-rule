@@ -5,11 +5,14 @@
   "main": "index.js",
   "scripts": {
     "lint": "tslint -p .",
+    "lint:fix": "tslint -p . --fix -t verbose",
     "test": "mocha --require ts-node/register spec/**/*.ts"
   },
   "author": "Yaniv Trabelsi <yantrab@gmail.com>",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "ts-morph": "^1.3.0"
+  },
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/jasmine": "^3.3.9",

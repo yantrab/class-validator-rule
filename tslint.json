@@ -1,5 +1,4 @@
 {
-    "extends": "tslint:recommended",
     "rulesDirectory": ["./dist/src"],
     "rules": {
         "no-property-without-decorator":true
