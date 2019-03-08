@@ -1,6 +1,6 @@
 import * as Lint from "tslint";
 import * as ts from "typescript";
-import { Project, ClassDeclaration, TypeGuards } from 'ts-morph';
+import { Project } from 'ts-morph'
 const decorators: any = {};
 decorators[ts.SyntaxKind.StringKeyword] = {
     name: "IsString",
@@ -31,7 +31,7 @@ decorators.object = {
 };
 
 export class Rule extends Lint.Rules.AbstractRule {
-    public static FAILURE_STRING = "property declaration without type decorator";
+    public static FAILURE_STRING = "Property declaration without type decorator!";
 
     public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
         if (!sourceFile.fileName.endsWith(".model.ts")) { return; }
@@ -91,37 +91,44 @@ export class NoPropertysWalker extends Lint.RuleWalker {
         const rows = node.getFullText().split('\n')
         const lastRow = rows[rows.length - 1]
         const spaces = lastRow.search(/\S|$/)
+        const text = ' '.repeat(spaces) + node.getText()
         const replacement = !isArray ? decorator.replacement : decorator.arrayReplacement
         const decorators = node.decorators;//[0].expression.expression.getText()
+        
+        if (node.questionToken) {
+            const hasOptionalDecorator = decorators && decorators.find(d => (d.expression as any).expression.getText() == 'IsOptional')
+            if (!hasOptionalDecorator) {
+                const fix = new Lint.Replacement(node.getStart(), node.getWidth(), '@IsOptional()' + '\n' + text)
+                this.addFailure(this.createFailure(node.getStart(), node.getWidth(), 'Property is marked as optional without IsOptional decorator!', fix))
+            }
+        }
+
         const acceptedDecorator = !decorators ? undefined : decorators.find(d => (d.expression as any).expression.getText() == decorator.name)
         if (acceptedDecorator) { return }
-        let fileText = node.getSourceFile().text;
-        fileText = fileText.replace(node.getText(), ' '.repeat(spaces) + replacement + '\n' + node.getText())
-        let fileLines: string[] = fileText.split('\n');
-        const importDeclarationIndex = fileLines.findIndex(row => row.startsWith('import') && row.includes('class-validator'))
-        const existNecessaryImport = importDeclarationIndex !== -1 && fileLines[importDeclarationIndex].includes(decorator.name)
+        //let fileText = node.getSourceFile().text;
+        //fileText = fileText.replace(node.getText(), ' '.repeat(spaces) + replacement + '\n' + node.getText())
+        //let fileLines: string[] = fileText.split('\n');
+        //const importDeclarationIndex = fileLines.findIndex(row => row.startsWith('import') && row.includes('class-validator'))
+        //const existNecessaryImport = importDeclarationIndex !== -1 && fileLines[importDeclarationIndex].includes(decorator.name)
 
         let fix;
-        if (!existNecessaryImport) {
-            if (importDeclarationIndex === -1) {
-                fileLines = [`import { ${decorator.name} } from 'class-validator'`, ...fileLines];
-            }
-            else {
-                fileLines[importDeclarationIndex] =
-                    fileLines[importDeclarationIndex].replace('import {', 'import { ' + decorator.name + ', ')
-            }
-            fix =
-                new Lint.Replacement(node.getSourceFile().getStart(),
-                    node.getSourceFile().getWidth(), fileLines.join('\n'))
-        }
-        else {
-            const text = ' '.repeat(spaces) + node.getText()
-            fix =
-                new Lint.Replacement(node.getStart(), node.getWidth(), replacement + '\n' + text)
-        }
+        // if (!existNecessaryImport) {
+        //     if (importDeclarationIndex === -1) {
+        //         fileLines = [`import { ${decorator.name} } from 'class-validator'`, ...fileLines];
+        //     }
+        //     else {
+        //         fileLines[importDeclarationIndex] =
+        //             fileLines[importDeclarationIndex].replace('import {', 'import { ' + decorator.name + ', ')
+        //     }
+        //     fix =
+        //         new Lint.Replacement(node.getSourceFile().getStart(),
+        //             node.getSourceFile().getWidth(), fileLines.join('\n'))
+        // }
+        // else {
+        fix = new Lint.Replacement(node.getStart(), node.getWidth(), replacement + '\n' + text)
+        //}
 
         this.addFailure(this.createFailure(node.getStart(), node.getWidth(), Rule.FAILURE_STRING, fix))
-
         super.visitPropertyDeclaration(node)
     }
 

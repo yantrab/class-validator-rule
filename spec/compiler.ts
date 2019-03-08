@@ -15,7 +15,7 @@ export function compile(sourceFile: ts.SourceFile) {
       })
       const fileLines:string[] = node.getSourceFile().text.split('\n');
       const importDeclarationIndex = fileLines.findIndex(row => row.startsWith('import') && row.includes('class-validator'))
-      const importDeclaration =fileLines[importDeclarationIndex];
+      const importDeclaration = fileLines[importDeclarationIndex];
       console.log(node);
     }
     if (node.kind === ts.SyntaxKind.StringLiteral) {
