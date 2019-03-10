@@ -2,7 +2,7 @@
   "name": "tslint-class-validator-role",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/noPropertyWithoutDecoratorRule.js",
   "scripts": {
     "lint": "tslint -p .",
     "lint:fix": "tslint -p . --fix "

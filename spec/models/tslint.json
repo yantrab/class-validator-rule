@@ -1,5 +1,5 @@
 {
-    "rulesDirectory": ["../../dist/src"],
+    "rulesDirectory": ["../../dist"],
     "rules": {
         "no-property-without-decorator":true
     }
