@@ -72,7 +72,7 @@ npm i tslint-class-validator-role -D
 ```
 
 ### tslint
-Add tslint configoration to you root modles folder
+Add tslint configoration to you root model folder
 ```json
 {
     "rulesDirectory": ["tslint-class-validator-rule"],
@@ -90,5 +90,7 @@ tslint -p . --fix
 ```typescript
  app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: true }));
  ```
-
+#### TODO
+-- add imports
+-- regex path option.
 
