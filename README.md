@@ -91,6 +91,6 @@ tslint -p . --fix
  app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: true }));
  ```
 #### TODO
--- add imports
--- regex path option.
+##### - Add imports
+##### - file/folder name option, to support '**/*model/ts
 
