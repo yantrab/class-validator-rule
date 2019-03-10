@@ -34,7 +34,7 @@ export class Rule extends Lint.Rules.AbstractRule {
     public static FAILURE_STRING = 'Property declaration without type decorator!';
 
     public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
-        if (!sourceFile.fileName.endsWith('.model.ts')) { return; }
+        // if (!sourceFile.fileName.endsWith('.model.ts')) { return; }
         return this.applyWithWalker(new NoPropertysWalker(sourceFile, this.getOptions()));
     }
 }
