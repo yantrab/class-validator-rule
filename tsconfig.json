@@ -15,5 +15,5 @@
     "include": [
       "src/**/*",
       "spec/models/**/*"
-    ],
+    ]
   }

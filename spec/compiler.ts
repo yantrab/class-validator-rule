@@ -1,6 +1,4 @@
 import * as ts from "typescript";
-import { NoPropertysWalker } from "../src/noPropertyWithoutDecoratorRule";
-import Project, { ImportDeclaration } from "ts-morph";
 export function compile(sourceFile: ts.SourceFile) {
   compileNode(sourceFile);
   function compileNode(node: ts.Node) {
@@ -13,9 +11,13 @@ export function compile(sourceFile: ts.SourceFile) {
         target: ts.ScriptTarget.ES5,
         module: ts.ModuleKind.CommonJS
       })
-      const fileLines:string[] = node.getSourceFile().text.split('\n');
-      const importDeclarationIndex = fileLines.findIndex(row => row.startsWith('import') && row.includes('class-validator'))
-      const importDeclaration = fileLines[importDeclarationIndex];
+      let root:ts.Node = node.parent;
+      while (root.parent) root = root.parent
+      const importDeclerationNode = 
+      root
+      .getChildren()[0]
+      .getChildren()
+      .find(node => node.kind ===  ts.SyntaxKind.ImportDeclaration && node.getText().includes('class-validator'));
       console.log(node);
     }
     if (node.kind === ts.SyntaxKind.StringLiteral) {

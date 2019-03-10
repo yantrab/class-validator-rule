@@ -1,40 +1,40 @@
-import * as Lint from "tslint";
-import * as ts from "typescript";
-import { Project } from 'ts-morph'
+import * as Lint from 'tslint';
+import * as ts from 'typescript';
+import { Project } from 'ts-morph';
 const decorators: any = {};
 decorators[ts.SyntaxKind.StringKeyword] = {
-    name: "IsString",
-    replacement: "@IsString()",
-    arrayReplacement: "@IsString({ each: true })",
+    name: 'IsString',
+    replacement: '@IsString()',
+    arrayReplacement: '@IsString({ each: true })',
 };
 decorators[ts.SyntaxKind.NumberKeyword] = {
-    name: "IsNumber", replacement: "@IsNumber()",
-    arrayReplacement: "@IsNumber({},{ each: true })",
+    name: 'IsNumber', replacement: '@IsNumber()',
+    arrayReplacement: '@IsNumber({},{ each: true })',
 };
 decorators[ts.SyntaxKind.BooleanKeyword] = {
-    name: "IsBoolean", replacement: "@IsBoolean()",
-    arrayReplacement: "@IsBoolean({ each: true })",
+    name: 'IsBoolean', replacement: '@IsBoolean()',
+    arrayReplacement: '@IsBoolean({ each: true })',
 };
 decorators.Date = {
-    name: "IsDate", replacement: "@IsDate()",
-    arrayReplacement: "@IsDate({ each: true })",
+    name: 'IsDate', replacement: '@IsDate()',
+    arrayReplacement: '@IsDate({ each: true })',
 };
 decorators.enum = {
-    name: "IsEnum", replacement: "@IsEnum()",
-    arrayReplacement: "@IsEnum({ each: true })",
+    name: 'IsEnum', replacement: '@IsEnum()',
+    arrayReplacement: '@IsEnum({ each: true })',
 };
 
 decorators.object = {
-    name: "ValidateNested",
-    replacement: "@ValidateNested()",
-    arrayReplacement: "@ValidateNested({ each: true })",
+    name: 'ValidateNested',
+    replacement: '@ValidateNested()',
+    arrayReplacement: '@ValidateNested({ each: true })',
 };
 
 export class Rule extends Lint.Rules.AbstractRule {
-    public static FAILURE_STRING = "Property declaration without type decorator!";
+    public static FAILURE_STRING = 'Property declaration without type decorator!';
 
     public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
-        if (!sourceFile.fileName.endsWith(".model.ts")) { return; }
+        if (!sourceFile.fileName.endsWith('.model.ts')) { return; }
         return this.applyWithWalker(new NoPropertysWalker(sourceFile, this.getOptions()));
     }
 }
@@ -53,12 +53,11 @@ export class NoPropertysWalker extends Lint.RuleWalker {
             if (decorator) {
                 return this.checkAndAddFailure(node, decorator);
             }
-            if (this.isEnum(node)) {
-                decorator = { ...decorators.enum }
-                decorator.replacement = decorator.replacement.replace('()', `(${typeReferance.text})`)
+            if (this.isEnum(node.getSourceFile().fileName, node.parent.name.text, node.name.getText())) {
+                decorator = { ...decorators.enum };
+                decorator.replacement = decorator.replacement.replace('()', `(${typeReferance.text})`);
                 return this.checkAndAddFailure(node, decorator);
-            }
-            else {
+            } else {
                 return this.checkAndAddFailure(node, decorators.object);
             }
         }
@@ -68,18 +67,18 @@ export class NoPropertysWalker extends Lint.RuleWalker {
             if (decorator) {
                 return this.checkAndAddFailure(node, decorator, true);
             }
+            // tslint:disable-next-line: no-shadowed-variable
             const typeReferance = (arrayType as any).typeName;
             if (typeReferance) {
                 decorator = decorators[typeReferance.text];
                 if (decorator) {
                     return this.checkAndAddFailure(node, decorator, true);
                 }
-                if (this.isEnum(node)) {
-                    decorator = { ...decorators.enum }
-                    decorator.arrayReplacement = decorator.arrayReplacement.replace('({', `(${typeReferance.text},{`)
+                if (this.isEnumArray(node.getSourceFile().fileName, node.parent.name.text, (node as any).name.getText())) {
+                    decorator = { ...decorators.enum };
+                    decorator.arrayReplacement = decorator.arrayReplacement.replace('({', `(${typeReferance.text},{`);
                     return this.checkAndAddFailure(node, decorator, true);
-                }
-                else {
+                } else {
                     return this.checkAndAddFailure(node, decorators.object, true);
                 }
             }
@@ -88,53 +87,42 @@ export class NoPropertysWalker extends Lint.RuleWalker {
     }
 
     private checkAndAddFailure(node: ts.PropertyDeclaration, decorator, isArray = false) {
-        const rows = node.getFullText().split('\n')
-        const lastRow = rows[rows.length - 1]
-        const spaces = lastRow.search(/\S|$/)
-        const text = ' '.repeat(spaces) + node.getText()
-        const replacement = !isArray ? decorator.replacement : decorator.arrayReplacement
-        const decorators = node.decorators;//[0].expression.expression.getText()
-        
-        if (node.questionToken) {
-            const hasOptionalDecorator = decorators && decorators.find(d => (d.expression as any).expression.getText() == 'IsOptional')
-            if (!hasOptionalDecorator) {
-                const fix = new Lint.Replacement(node.getStart(), node.getWidth(), '@IsOptional()' + '\n' + text)
-                this.addFailure(this.createFailure(node.getStart(), node.getWidth(), 'Property is marked as optional without IsOptional decorator!', fix))
+        const rows = node.getFullText().split('\n');
+        const lastRow = rows[rows.length - 1];
+        const spaces = lastRow.search(/\S|$/);
+        const text = ' '.repeat(spaces) + node.getText();
+        const replacement = !isArray ? decorator.replacement : decorator.arrayReplacement;
+        const nodeDecorators = node.decorators;
+        const needAddIsOptional = node.questionToken
+            && (!nodeDecorators || !nodeDecorators.find(d => (d.expression as any).expression.getText() === 'IsOptional'));
+        const acceptedDecorator = !nodeDecorators ? undefined :
+            nodeDecorators.find(d => (d.expression as any).expression.getText() === decorator.name);
+        if (acceptedDecorator) {
+            if (needAddIsOptional) {
+                const msg = 'Property is marked as optional without IsOptional decorator!';
+                const fix = new Lint.Replacement(node.getStart(), node.getWidth(), ' '.repeat(spaces) + '@IsOptional()' + '\n' + text);
+                this.addFailure(this.createFailure(node.getStart(), node.getWidth(), msg, fix));
             }
+        } else {
+            let replacementText = replacement + '\n' + text;
+            if (needAddIsOptional) {
+                replacementText = '@IsOptional()' + '\n' + ' '.repeat(spaces) + replacementText;
+            }
+            const fix = new Lint.Replacement(node.getStart(), node.getWidth(), replacementText);
+            this.addFailure(this.createFailure(node.getStart(), node.getWidth(), Rule.FAILURE_STRING, fix));
         }
-
-        const acceptedDecorator = !decorators ? undefined : decorators.find(d => (d.expression as any).expression.getText() == decorator.name)
-        if (acceptedDecorator) { return }
-        //let fileText = node.getSourceFile().text;
-        //fileText = fileText.replace(node.getText(), ' '.repeat(spaces) + replacement + '\n' + node.getText())
-        //let fileLines: string[] = fileText.split('\n');
-        //const importDeclarationIndex = fileLines.findIndex(row => row.startsWith('import') && row.includes('class-validator'))
-        //const existNecessaryImport = importDeclarationIndex !== -1 && fileLines[importDeclarationIndex].includes(decorator.name)
-
-        let fix;
-        // if (!existNecessaryImport) {
-        //     if (importDeclarationIndex === -1) {
-        //         fileLines = [`import { ${decorator.name} } from 'class-validator'`, ...fileLines];
-        //     }
-        //     else {
-        //         fileLines[importDeclarationIndex] =
-        //             fileLines[importDeclarationIndex].replace('import {', 'import { ' + decorator.name + ', ')
-        //     }
-        //     fix =
-        //         new Lint.Replacement(node.getSourceFile().getStart(),
-        //             node.getSourceFile().getWidth(), fileLines.join('\n'))
-        // }
-        // else {
-        fix = new Lint.Replacement(node.getStart(), node.getWidth(), replacement + '\n' + text)
-        //}
-
-        this.addFailure(this.createFailure(node.getStart(), node.getWidth(), Rule.FAILURE_STRING, fix))
-        super.visitPropertyDeclaration(node)
+        super.visitPropertyDeclaration(node);
     }
 
-    private isEnum(node: ts.PropertyDeclaration) {
+    private isEnum(fileName: string, className: string, propertyName: string) {
         const project = new Project({ compilerOptions: { outDir: '' } });
-        const sf = project.addExistingSourceFile(node.getSourceFile().fileName);
-        return sf.getClass(node.parent.name.text).getProperty(node.name.getText()).getType().isEnum();
+        const sf = project.addExistingSourceFile(fileName);
+        return sf.getClass(className).getProperty(propertyName).getType().isEnum();
+    }
+
+    private isEnumArray(fileName: string, className: string, propertyName: string) {
+        const project = new Project({ compilerOptions: { outDir: '' } });
+        const sf = project.addExistingSourceFile(fileName);
+        return sf.getClass(className).getProperty(propertyName).getType().getArrayType().isEnum();
     }
 }
