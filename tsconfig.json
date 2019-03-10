@@ -13,7 +13,6 @@
       ],
     },
     "include": [
-      "src/**/*",
-      "spec/models/**/*"
+      "src/**/*"
     ]
   }
