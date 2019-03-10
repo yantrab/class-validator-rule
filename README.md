@@ -68,7 +68,7 @@ This rule reminds you to add the correct decorator and can fix your models.
 ## Get started
 ### install rule with dev flag:
 ```
-npm i tslint-class-validator-role -D
+npm i tslint-class-validator-rule -D
 ```
 
 ### tslint
