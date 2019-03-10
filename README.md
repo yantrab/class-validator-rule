@@ -92,5 +92,5 @@ tslint -p . --fix
  ```
 #### TODO
 ##### - Add imports
-##### - file/folder name option, to support '**/*model/ts
+##### - file/folder name option, to support '**/*model.ts'
 
