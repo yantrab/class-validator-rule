@@ -1,11 +1,15 @@
 {
-  "name": "tslint-class-validator-role",
-  "version": "1.0.0",
+  "name": "tslint-class-validator-rule",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/noPropertyWithoutDecoratorRule.js",
   "scripts": {
     "lint": "tslint -p .",
     "lint:fix": "tslint -p . --fix "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yantrab/class-validator-rule.git"
   },
   "author": "Yaniv Trabelsi <yantrab@gmail.com>",
   "license": "ISC",
