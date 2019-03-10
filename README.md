@@ -1,6 +1,6 @@
 # class-validator-rule
-## Strongly types validation
-It is possible to do strongly type validation with class-validator.
+## Strongly typed validation
+It is possible to do strongly typed validation with [class-validator](https://github.com/typestack/class-validator).
 
 ### example
 This class 
@@ -26,7 +26,7 @@ class Model {
     objectArray: SomeObject[];
 }
 ```
-should be
+should decorate like:
 ```typescript
 enum Color { Red, Green, Blue }
 class SomeObject {
@@ -63,10 +63,32 @@ class Model {
     objectArray: SomeObject[];
 }
 ```
+This rule reminds you to add the correct decorator and can fix your models.
 
-
-#Get started
-install rule with dev flag:
+## Get started
+### install rule with dev flag:
 ```
 npm i tslint-class-validator-role -D
 ```
+
+### tslint
+Add tslint configoration to you root modles folder
+```json
+{
+    "rulesDirectory": ["tslint-class-validator-rule"],
+    "rules": {
+        "no-property-without-decorator":true
+    }
+}
+```
+fix
+```
+tslint -p . --fix 
+```
+
+### Add middleware (nestjs)
+```typescript
+ app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: true }));
+ ```
+
+
