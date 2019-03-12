@@ -2,7 +2,7 @@
 ## Strongly typed validation
 It is possible to do strongly typed validation with [class-validator](https://github.com/typestack/class-validator).
 
-### example
+### Example
 This class 
 ```typescript
 enum Color { Red, Green, Blue }
@@ -26,7 +26,7 @@ class Model {
     objectArray: SomeObject[];
 }
 ```
-should decorate like:
+Should decorate like:
 ```typescript
 enum Color { Red, Green, Blue }
 class SomeObject {
@@ -66,13 +66,13 @@ class Model {
 This rule reminds you to add the correct decorator and can fix your models.
 
 ## Get started
-### install rule with dev flag:
+### Install rule with dev flag:
 ```
 npm i tslint-class-validator-rule -D
 ```
 
-### tslint
-Add tslint configoration to you root model folder
+### tslint configuration
+Add tslint configoration to root of your models folder
 ```json
 {
     "rulesDirectory": ["tslint-class-validator-rule"],
@@ -81,7 +81,7 @@ Add tslint configoration to you root model folder
     }
 }
 ```
-fix
+Fix
 ```
 tslint -p . --fix 
 ```
