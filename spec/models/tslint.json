@@ -1,6 +1,7 @@
 {
     "rulesDirectory": ["../../dist"],
     "rules": {
-        "no-property-without-decorator":true
+        "no-property-without-decorator":true,
+        "missing-class-validator-import-rule": true
     }
 }

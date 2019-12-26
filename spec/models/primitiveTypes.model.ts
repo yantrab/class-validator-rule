@@ -9,7 +9,7 @@ class Model {
     boolean: boolean;
     date: Date;
 
-    stringArray: string[];
+    @IsString({ each: true }) stringArray: string[];
     numberArray: number[];
     booleanArray: boolean[];
     dateArray: Date[];

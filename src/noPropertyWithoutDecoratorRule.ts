@@ -34,7 +34,6 @@ export class Rule extends Lint.Rules.AbstractRule {
     public static FAILURE_STRING = 'Property declaration without type decorator!';
 
     public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
-        // if (!sourceFile.fileName.endsWith('.model.ts')) { return; }
         return this.applyWithWalker(new NoPropertysWalker(sourceFile, this.getOptions()));
     }
 }
@@ -43,6 +42,9 @@ export class Rule extends Lint.Rules.AbstractRule {
 export class NoPropertysWalker extends Lint.RuleWalker {
     public visitPropertyDeclaration(node: ts.PropertyDeclaration) {
         const type = node.type;
+        if (!type) {
+            return;
+        }
         let decorator = decorators[type.kind];
         if (decorator) {
             return this.checkAndAddFailure(node, decorator);
@@ -87,10 +89,7 @@ export class NoPropertysWalker extends Lint.RuleWalker {
     }
 
     private checkAndAddFailure(node: ts.PropertyDeclaration, decorator, isArray = false) {
-        const rows = node.getFullText().split('\n');
-        const lastRow = rows[rows.length - 1];
-        const spaces = lastRow.search(/\S|$/);
-        const text = ' '.repeat(spaces) + node.getText();
+        const text = node.getText();
         const replacement = !isArray ? decorator.replacement : decorator.arrayReplacement;
         const nodeDecorators = node.decorators;
         const needAddIsOptional = node.questionToken
@@ -100,16 +99,16 @@ export class NoPropertysWalker extends Lint.RuleWalker {
         if (acceptedDecorator) {
             if (needAddIsOptional) {
                 const msg = 'Property is marked as optional without IsOptional decorator!';
-                const fix = new Lint.Replacement(node.getStart(), node.getWidth(), ' '.repeat(spaces) + '@IsOptional()' + '\n' + text);
-                this.addFailure(this.createFailure(node.getStart(), node.getWidth(), msg, fix));
+                const fix = new Lint.Replacement(node.getStart(), node.getWidth(), ' ' + '@IsOptional()' + ' ' + text);
+                this.addFailureAt(node.getStart(), node.getWidth(), msg, fix);
             }
         } else {
-            let replacementText = replacement + '\n' + text;
+            let replacementText = replacement + ' ' + text;
             if (needAddIsOptional) {
-                replacementText = '@IsOptional()' + '\n' + ' '.repeat(spaces) + replacementText;
+                replacementText = '@IsOptional()'  + ' ' + replacementText;
             }
             const fix = new Lint.Replacement(node.getStart(), node.getWidth(), replacementText);
-            this.addFailure(this.createFailure(node.getStart(), node.getWidth(), Rule.FAILURE_STRING, fix));
+            this.addFailureAt(node.getStart(), node.getWidth(), Rule.FAILURE_STRING, fix);
         }
         super.visitPropertyDeclaration(node);
     }

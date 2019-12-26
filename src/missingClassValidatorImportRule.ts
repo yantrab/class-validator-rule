@@ -1,6 +1,5 @@
 import * as Lint from 'tslint';
 import * as ts from 'typescript';
-import { Project } from 'ts-morph';
 const classValidatorDecorators = ['IsString', 'IsNumber', 'IsBoolean', 'IsDate', 'IsEnum', 'ValidateNested', 'IsOptional'];
 
 export class Rule extends Lint.Rules.AbstractRule {
